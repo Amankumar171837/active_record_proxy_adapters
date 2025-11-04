@@ -5,6 +5,7 @@ require "active_record_proxy_adapters/hijackable"
 require "active_record_proxy_adapters/mysql2_proxy"
 require "active_record/connection_adapters/mysql2_adapter"
 require "active_record/tasks/mysql2_proxy_database_tasks"
+require "active_record_proxy_adapters/multi_replica_proxy"
 
 module ActiveRecord
   module ConnectionAdapters
@@ -18,10 +19,12 @@ module ActiveRecord
       delegate_to_proxy(*ActiveRecordProxyAdapters::ActiveRecordContext.hijackable_methods)
 
       def initialize(...)
-        @proxy = ActiveRecordProxyAdapters::Mysql2Proxy.new(self)
-
         super
+
+        # ✅ Let MultiReplicaProxy auto-discover from database.yml using `replica: true`
+        @proxy = ActiveRecordProxyAdapters::MultiReplicaProxy.new(self)
       end
+
 
       private
 
